@@ -1,20 +1,16 @@
 name: RUN
-
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 */5 * * *'
-
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     timeout-minutes: 330
-
     steps:
-
     - name: "📥 Tải code từ repo Private"
       run: |
-         git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Luanbets/MINECRAFT.git bot
+        git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Luanbets/MINECRAFT.git bot
 
     - name: "⚙️ Cài Node.js 18"
       uses: actions/setup-node@v4
@@ -25,15 +21,17 @@ jobs:
       working-directory: bot
       run: npm install
 
-    - name: "🔀 Đổi IP qua Cloudflare WARP"
+    - name: "🔀 Đổi IP qua Tor"
       run: |
-        curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
-        echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
-        sudo apt-get update && sudo apt-get install -y cloudflare-warp
-        warp-cli --accept-tos register
-        warp-cli --accept-tos connect
+        sudo apt-get install -y tor
+        sudo service tor start
         sleep 5
+        echo "IP hiện tại:"
+        curl --socks5 127.0.0.1:9050 https://api.ipify.org
 
     - name: "🤖 Chạy bot"
       working-directory: bot
+      env:
+        HTTPS_PROXY: socks5://127.0.0.1:9050
+        ALL_PROXY: socks5://127.0.0.1:9050
       run: npm start
