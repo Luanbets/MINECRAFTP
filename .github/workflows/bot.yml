@@ -1,4 +1,4 @@
-name: 24/7 Minecraft AFK Bot
+name: RUN
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ jobs:
 
     - name: "📥 Tải code từ repo Private"
       run: |
-        git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Luanbets/MINECRAFT.git bot
+         git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Luanbets/MINECRAFT.git bot
 
     - name: "⚙️ Cài Node.js 18"
       uses: actions/setup-node@v4
@@ -25,11 +25,15 @@ jobs:
       working-directory: bot
       run: npm install
 
+    - name: "🔀 Đổi IP qua Cloudflare WARP"
+      run: |
+        curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+        sudo apt-get update && sudo apt-get install -y cloudflare-warp
+        warp-cli --accept-tos register
+        warp-cli --accept-tos connect
+        sleep 5
+
     - name: "🤖 Chạy bot"
       working-directory: bot
-      env:
-        ACC1_USERNAME: ${{ secrets.ACC1_USERNAME }}
-        ACC1_LOGIN_CMD: ${{ secrets.ACC1_LOGIN_CMD }}
-        ACC2_USERNAME: ${{ secrets.ACC2_USERNAME }}
-        ACC2_LOGIN_CMD: ${{ secrets.ACC2_LOGIN_CMD }}
       run: npm start
