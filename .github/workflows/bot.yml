@@ -11,27 +11,13 @@ jobs:
     - name: "📥 Tải code từ repo Private"
       run: |
         git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Luanbets/MINECRAFT.git bot
-
     - name: "⚙️ Cài Node.js 18"
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-
     - name: "📦 Cài thư viện"
       working-directory: bot
       run: npm install
-
-    - name: "🔀 Đổi IP qua Tor"
-      run: |
-        sudo apt-get install -y tor
-        sudo service tor start
-        sleep 5
-        echo "IP hiện tại:"
-        curl --socks5 127.0.0.1:9050 https://api.ipify.org
-
     - name: "🤖 Chạy bot"
       working-directory: bot
-      env:
-        HTTPS_PROXY: socks5://127.0.0.1:9050
-        ALL_PROXY: socks5://127.0.0.1:9050
       run: npm start
